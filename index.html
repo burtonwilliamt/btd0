@@ -1,9 +1,11 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Hello World</title>
 </head>
+
 <body>
   <script src="pixi/pixi.js"></script>
   <script type="text/javascript">
@@ -12,13 +14,58 @@
       type = "canvas";
     }
 
-    PIXI.utils.sayHello(type);
+    //Aliases
+    const Application = PIXI.Application,
+      loader = PIXI.Loader.shared,
+      resources = PIXI.Loader.shared.resources,
+      Sprite = PIXI.Sprite;
 
-    //Create a Pixi Application
-    const app = new PIXI.Application({width: 512, height: 512});
+    const app = new Application({
+      width: 960,
+      height: 512,
+      antialias: true,
+      transparent: false,
+      resolution: 1
+    }
+    );
 
-    //Add the canvas that Pixi automatically created for you to the HTML document
     document.body.appendChild(app.view);
+
+    //load an image and run the `setup` function when it's done
+    loader
+      .add("img/grass_tile_3.png")
+      .load(setup);
+
+
+    // Main game logic
+    const state = {
+      tickProcess: play,
+      grassBlocks: [],
+    }
+
+    function setup() {
+      makeGrass(64,64);
+      app.ticker.add((delta) => state.tickProcess(delta));
+    }
+
+    function makeGrass(x, y) {
+      const grass = new Sprite(resources["img/grass_tile_3.png"].texture);
+      grass.x = x;
+      grass.y = y;
+      grass.width = 64;
+      grass.height = 64;
+      app.stage.addChild(grass);
+      state.grassBlocks.push(grass);
+      return grass;
+    }
+
+    function play(delta) {
+      for (const grass of state.grassBlocks) {
+        grass.x += 1;
+      }
+    }
+
   </script>
 </body>
+
 </html>
