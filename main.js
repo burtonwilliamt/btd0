@@ -2,9 +2,11 @@
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   resources = PIXI.Loader.shared.resources,
-  Sprite = PIXI.Sprite,
   Graphics = PIXI.Graphics,
-  Container = PIXI.Container;
+  Container = PIXI.Container,
+  Sprite = PIXI.Sprite,
+  Text = PIXI.Text,
+  TextStyle = PIXI.TextStyle;
 
 const app = new Application({
   width: 960,
@@ -28,6 +30,9 @@ const state = {
   targetDelay: 60,
   targetMax: 10,
   bounciness: 1.0,
+  score: 0,
+  clicks: 0,
+  scoreText: null,
   tickNum: 0,
   tink: null,
   pointer: null,
@@ -100,12 +105,14 @@ function drawReticule() {
 // ***************Game logic functions******************
 function handleClick() {
   const x = state.pointer.x, y = state.pointer.y;
+  state.clicks += 1;
   for (let i = 0; i < state.targets.length; i++) {
     const target = state.targets[i];
     if (distance(x, y, target.x, target.y) < 32) {
       //if (state.pointer.hitTestSprite(target)) {
       target.destroy();
       state.targets.splice(i, 1);
+      state.score += 1;
       break;
     }
   }
@@ -122,6 +129,14 @@ function updateReticule() {
   state.reticule.y = state.pointer.y;
 }
 
+function updateScore() {
+  if (state.scoreText === null) {
+    state.scoreText = new Text("", new TextStyle({fill: "#ffffff"}));
+    app.stage.addChild(state.scoreText);
+  }
+  state.scoreText.text = `Score: ${state.score}\nAccuracy: ${state.score/state.clicks}\nDPS: ${state.score*60/state.tickNum}`;
+}
+
 // ***************Game Loop functions******************
 function play(delta) {
   if (state.targets.length < state.targetMax && state.tickNum % state.targetDelay == 0) {
@@ -129,6 +144,7 @@ function play(delta) {
   }
   updatePhysics();
   updateReticule();
+  updateScore();
   state.tickNum += 1;
 }
 
