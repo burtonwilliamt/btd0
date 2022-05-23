@@ -27,6 +27,7 @@ document.body.appendChild(app.view);
 const state = {
   currentMode: play,
   targets: [],
+  targetContainer: null,
   targetDelay: 60,
   targetMax: 10,
   bounciness: 1.0,
@@ -37,6 +38,7 @@ const state = {
   tink: null,
   pointer: null,
   reticule: null,
+  pauseText: null,
 }
 
 // ***************Utility functions******************
@@ -79,13 +81,19 @@ function drawCircle(x, y, radius, color) {
   return circ;
 }
 
+function drawText(x, y, content) {
+  txt = new Text(content, new TextStyle({ fill: "#ffffff"}));
+  txt.position.set(x, y);
+  return txt;
+}
+
 function makeTarget() {
   const x = Math.floor(Math.random() * app.renderer.view.width),
     y = Math.floor(Math.random() * app.renderer.view.height),
     target = drawCircle(x, y, 32, 0x9966FF);
   target.vx = 0;
   target.vy = 0;
-  app.stage.addChild(target);
+  state.targetContainer.addChild(target);
   state.targets.push(target);
 }
 
@@ -101,9 +109,16 @@ function drawReticule() {
   state.reticule = reticule;
 }
 
+function graphicsSetup() {
+  state.targetContainer = new Container();
+  app.stage.addChild(state.targetContainer);
+}
 
 // ***************Game logic functions******************
 function handleClick() {
+  if (state.currentMode == pause) {
+    return;
+  }
   const x = state.pointer.x, y = state.pointer.y;
   state.clicks += 1;
   for (let i = 0; i < state.targets.length; i++) {
@@ -131,13 +146,17 @@ function updateReticule() {
 
 function updateScore() {
   if (state.scoreText === null) {
-    state.scoreText = new Text("", new TextStyle({fill: "#ffffff"}));
+    state.scoreText = drawText(0, 0, "");
     app.stage.addChild(state.scoreText);
   }
-  state.scoreText.text = `Score: ${state.score}\nAccuracy: ${state.score/state.clicks}\nDPS: ${state.score*60/state.tickNum}`;
+  state.scoreText.text = `Score: ${state.score}\nAccuracy: ${state.score / state.clicks}\nDPS: ${state.score * 60 / state.tickNum}`;
 }
 
 // ***************Game Loop functions******************
+function pause(delta) {
+  updateReticule();
+}
+
 function play(delta) {
   if (state.targets.length < state.targetMax && state.tickNum % state.targetDelay == 0) {
     makeTarget();
@@ -162,8 +181,31 @@ function pointerSetup() {
   drawReticule();
 }
 
+function togglePause() {
+  if (state.currentMode === play) {
+    state.pauseText = drawText(0, 0, "PAUSED\nPress esc to resume.");
+    state.pauseText.pivot.set(state.pauseText.width / 2, state.pauseText.height / 2);
+    state.pauseText.position.set(app.renderer.view.width / 2, app.renderer.view.height / 2);
+    state.pauseText.style.align = "center";
+    app.stage.addChild(state.pauseText);
+    state.currentMode = pause;
+  } else {
+    state.pauseText.destroy();
+    state.pauseText = null;
+    state.currentMode = play;
+  }
+}
+
+function controlsSetup() {
+  const escKey = state.tink.keyboard(27); // esc key
+  escKey.press = togglePause;
+}
+
+
 function setup() {
+  graphicsSetup();
   pointerSetup();
+  controlsSetup();
   app.ticker.add((delta) => gameLoop(delta));
 }
 
