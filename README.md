@@ -1,5 +1,10 @@
 # btd0
-Basic tower defense game I made to learn JS and the Pixijs graphics engine
+Play it here: https://burtonwilliamt.github.io/btd0.
+
+Clicking game made with [PixiJS](https://github.com/pixijs/pixijs).
+
+Messing around with javascript and web games, I made this clicky game roughly
+inspired by FPS warmup trainers.
 
 
 ## Running
