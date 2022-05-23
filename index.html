@@ -7,65 +7,16 @@
 </head>
 
 <body>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      cursor: none;
+    }
+  </style>
   <script src="pixi/pixi.js"></script>
-  <script type="text/javascript">
-    let type = "WebGL";
-    if (!PIXI.utils.isWebGLSupported()) {
-      type = "canvas";
-    }
-
-    //Aliases
-    const Application = PIXI.Application,
-      loader = PIXI.Loader.shared,
-      resources = PIXI.Loader.shared.resources,
-      Sprite = PIXI.Sprite;
-
-    const app = new Application({
-      width: 960,
-      height: 512,
-      antialias: true,
-      transparent: false,
-      resolution: 1
-    }
-    );
-
-    document.body.appendChild(app.view);
-
-    //load an image and run the `setup` function when it's done
-    loader
-      .add("img/grass_tile_3.png")
-      .load(setup);
-
-
-    // Main game logic
-    const state = {
-      tickProcess: play,
-      grassBlocks: [],
-    }
-
-    function setup() {
-      makeGrass(64,64);
-      app.ticker.add((delta) => state.tickProcess(delta));
-    }
-
-    function makeGrass(x, y) {
-      const grass = new Sprite(resources["img/grass_tile_3.png"].texture);
-      grass.x = x;
-      grass.y = y;
-      grass.width = 64;
-      grass.height = 64;
-      app.stage.addChild(grass);
-      state.grassBlocks.push(grass);
-      return grass;
-    }
-
-    function play(delta) {
-      for (const grass of state.grassBlocks) {
-        grass.x += 1;
-      }
-    }
-
-  </script>
+  <script src="tink/tink.js"></script>
+  <script src="main.js"></script>
 </body>
 
 </html>
